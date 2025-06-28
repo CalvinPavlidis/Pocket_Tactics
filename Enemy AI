@@ -1,0 +1,73 @@
+--enemy ai
+
+function nearest_enemy()
+	
+	if ne.x<active_char.x then
+		active_char.x_flip = true
+		ne.x_flip = false
+	else
+		active_char.x_flip = false
+		ne.x_flip = true
+	end
+end
+
+function path_to_target()
+	local max_steps_y = 12
+	find_moveable_spaces(active_char.x,active_char.y,max_steps_y)
+end
+
+function limit_movement()
+	local steps_removed = #closed-active_char.movement
+	for x=1,steps_removed do
+		deli(closed)
+	end
+end	
+
+function move_enemy()
+	path_to_target()
+	a_star(active_char.x,active_char.y,ne.x,ne.y)
+	limit_movement()
+	nearest_enemy()
+	if not in_range(ne.x,ne.y) then
+		active_char.i = 0
+		active_char.action = state[4]
+	else
+		enemy_attack()
+	end
+end
+
+function enemy_attack()
+	attacking_player = true
+	if in_range(ne.x,ne.y) then
+		active_char.i = 0
+		active_char.action = state[2]
+	else
+		attacking_player = false
+	end	
+end
+
+function end_move()
+	running_function = true
+	if #active_enemies>active_enemy_i then
+		active_enemy_i += 1
+		active_char = active_enemies[active_enemy_i]
+		move_enemy()
+	else		
+		active_player = true
+		active_enemy_i = 1
+		char_select(crsr.x,crsr.y)
+		find_moveable_spaces(active_char.x,active_char.y,active_char.movement)
+		attack_range(active_char.x,active_char.y)
+	end
+	running_function = false
+end
+
+function in_range(x,y)
+	attack_range(active_char.x,active_char.y)
+	if indexof(x,y,attack_targets) then
+		enemy_selected(x,y)
+		return true
+	else 
+		return false
+	end
+end

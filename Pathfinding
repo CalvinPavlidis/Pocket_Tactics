@@ -1,0 +1,163 @@
+--pathfinding
+
+function find_moveable_spaces(x,y,m)
+	queue = {{x=x,y=y}}
+	local open = {}
+	local start = {x=x,y=y}
+	local current = start
+	came_from = {}
+	came_from[start.x..','..start.y]=start
+	move_cost = {}
+	move_cost[start.x..','..start.y]=0
+	local neighbour = {{x=x-16,y=y},
+	{x=x+16,y=y},
+	{x=x,y=y-16},
+	{x=x,y=y+16}}
+	while current.y < y+(m*tile) do
+		local c = current.x..','..current.y
+	 for space in all(neighbour) do
+	  if can_move(space.x,space.y) and not indexof(space.x,space.y,queue) and not indexof(space.x,space.y,open) then 
+	   local i = space.x..','..space.y
+	   if not came_from[i] then
+	   	came_from[i] = current
+	  	elseif move_cost[c]<move_cost[came_from[i].x..','..came_from[i].y] then
+		  	came_from[i] = current
+		  end
+	  	if not move_cost[i] then
+	  		move_cost[i] = move_cost[c]+get_move_cost(space.x,space.y)
+				elseif move_cost[c]+get_move_cost(space.x,space.y)<move_cost[i] then
+					move_cost[i] = move_cost[c]+get_move_cost(space.x,space.y)
+	  	end
+	  	add(open,space)
+	  end
+	 end
+	 current = open[1]
+	 if current then
+		 if not indexof(current.x,current.y,queue) then
+			 if move_cost[current.x..','..current.y]<m+1 then
+			 	add(queue,current)
+			 end
+			end
+		else
+			return
+		end
+	 if not active_player then
+	 	if char_select(current.x,current.y) or #active_heroes < 1 then
+	 		if ne.action != state[5] or #active_heroes < 1 then
+	 			return
+	 		end
+	 	end
+	 end
+	 neighbour={}
+	 add(neighbour,{x=current.x-16,y=current.y})
+	 add(neighbour,{x=current.x,y=current.y-16})
+	 add(neighbour,{x=current.x+16,y=current.y})
+	 add(neighbour,{x=current.x,y=current.y+16})
+	 del(open,current)
+	end
+end
+
+function a_star(ox,oy,gx,gy)
+	moveable_space=true
+	closed = {}
+	local current = {x=gx,y=gy}
+	local start = {x=ox,y=oy}
+	while get_astar(current.x,current.y,start.x,start.y)>=1 do
+		add(closed, {x=current.x,y=current.y,d=1},1)
+		current = came_from[current.x..','..current.y]
+		print(#closed,1,80,0)
+		if not current then
+			break
+		end
+	end
+	if active_player then
+		add(closed,{x=ox,y=oy,d=1},1)
+	else
+		deli(closed)
+	end
+end
+
+function move_char(char,path)
+	if #closed > 0 then
+		if pi == #closed then
+	 	char.x = path[pi].x
+	 	char.y = path[pi].y
+	 	char.action = state[1]
+	 	char.tb=get_move_cost(char.x,char.y)
+	 	pi = 1
+			attack_range(char.x,char.y)
+			nearest_enemy()
+			find_moveable_spaces(char.x,char.y,char.movement)
+	 	if not active_player then
+	 		enemy_attack()
+	 	end
+	 else
+	 	char.x = path[pi].x
+	 	char.y = path[pi].y
+	  pi += 1
+	 end
+ else
+ 	char.action = state[1]
+ 	pi = 1
+		attack_range(char.x,char.y)
+ 	if not active_player then
+ 		enemy_attack()
+ 	end
+ end
+end
+
+function can_move(x,y)
+	moveable_space = false
+	local mx = (x/8)+map_pos.x
+	local my = (y/8)+map_pos.y
+	if not fget(mget(mx,my),0) then
+		if active_player then
+				return true
+		else
+			if not indexof(x,y,active_enemies) and not out_of_bounds(x,y) then 
+				return true
+			end
+		end
+	else
+		return false
+	end
+end
+
+
+
+function get_astar(sx,sy,x,y)
+	local sx_val = abs(sx-x)/tile
+	local sy_val = abs(sy-y)/tile
+	local astar = sx_val + sy_val
+	return astar
+end
+
+function indexof(x,y,arr)
+	for space in all(arr) do
+		if space.x == x and space.y == y then
+			return true
+		end
+	end
+	return false
+end
+
+function get_move_cost(x,y)
+	local mx = x/8+map_pos.x
+	local my = y/8+map_pos.y
+	if fget(mget(mx,my),1) then
+		return 2
+	else
+		return 1
+	end
+end
+
+function out_of_bounds(x,y)
+	local tile_pos = {x=x,y=y}
+	local start_boundary = {x=cam.x,y=cam.y}
+	local end_boundary = {x=cam.x+127,y=cam.y+127}
+	if tile_pos.x<start_boundary.x or tile_pos.x > end_boundary.x or tile_pos.y<start_boundary.y or tile_pos.y>end_boundary.y then
+		return true
+	else
+		return false
+	end
+end

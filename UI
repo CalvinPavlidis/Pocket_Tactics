@@ -1,0 +1,418 @@
+--ui
+
+function get_cursor()
+	crsr = {x=start_pos[1].x,
+	y=start_pos[1].y,sx=112,sy=64}
+	c_spd = 2
+	c_frame = 0
+	ci = 1
+	c_frames = {{x=112,y=64},
+	{x=112, y=80},
+	{x=96,y=80},
+	{x=112, y=80}}
+end 
+
+function ani_cursor()
+	if c_frame != c_spd then
+			c_frame += 1
+	else
+		c_frame = 0
+		if ci == 4 then
+		 ci = 1
+		else
+			ci += 1
+		end
+		crsr.sx = c_frames[ci].x
+		crsr.sy = c_frames[ci].y
+	end
+end
+
+function char_select(x,y)
+	if setting_attack or updating_dmg then
+		return
+	end
+	if x == soldier.x and y == soldier.y then
+		if not setting_move then
+			if active_player then
+				active_char = soldier
+			else
+				ne = soldier
+			end
+		else
+			moveable_space = false
+		end
+		return true
+	elseif x == archer.x and y == archer.y then
+		if not setting_move then
+			if active_player then
+				active_char = archer
+			else
+				ne = archer
+			end
+		else
+			moveable_space = false
+		end
+		return true
+	elseif x == sorcerer.x and y == sorcerer.y then			
+		if not setting_move then	
+			if active_player then
+				active_char = sorcerer
+			else
+				ne = sorcerer
+			end
+		else	
+			moveable_space = false
+		end	
+		return true	
+	elseif x == enemy_soldier.x and y == enemy_soldier.y then
+		if not setting_move and active_player then
+			active_char = enemy_soldier
+		else
+			moveable_space = false
+		end
+		if active_player then
+			return false
+		else
+			return true
+		end
+	elseif x == enemy_archer.x and y == enemy_archer.y then
+		if not setting_move and active_player then
+			active_char = enemy_archer
+		else
+			moveable_space = false
+		end
+		if active_player then
+			return false
+		else
+			return true
+		end
+	elseif x == enemy_sorcerer.x and y == enemy_sorcerer.y then
+		if not setting_move and active_player then
+			active_char = enemy_sorcerer
+		else
+			moveable_space = false
+		end
+		if active_player then
+			return false
+		else
+			return true
+		end
+	else
+		return false
+	end
+	nearest_enemy()
+end
+
+function enemy_selected(x,y)
+	if x == enemy_soldier.x and y == enemy_soldier.y then
+		if not active_player or setting_attack or updating_dmg then
+			ne = enemy_soldier
+			nearest_enemy()
+		end
+		return true
+	elseif x == enemy_archer.x and y == enemy_archer.y then
+		if not active_player or setting_attack or updating_dmg then
+			ne = enemy_archer
+			nearest_enemy()
+		end
+		return true
+	elseif x == enemy_sorcerer.x and y == enemy_sorcerer.y then
+		if not active_player or setting_attack or updating_dmg then
+			ne = enemy_sorcerer
+			nearest_enemy()
+		end
+		return true
+	else
+		return false
+	end
+end
+
+function print_box(i,box_w,box_h)
+	local bs = {{s="mid",x=24,y=72,xf=false,yf=false},
+ {s="top l",x=0,y=80,xf=false,yf=false},
+ {s="left", x=0,y=88,xf=false,yf=false},
+ {s="right",x=0,y=88,xf=true,yf=false},
+ {s="top r",x=0,y=80,xf=true,yf=false},
+ {s="bottom l",x=0,y=80,xf=false,yf=true},
+ {s="bottom r",x=0,y=80,xf=true,yf=true},
+ {s="bottom",x=8,y=80,xf=false,yf=true},
+ {s="top",x=8,y=80,xf=false,yf=false}}
+ 
+ sspr(bs[i].x,bs[i].y,8,8,box_w,box_h,8,8,bs[i].xf,bs[i].yf)
+end
+
+function menu_box(arr)
+	local cam = camera()+63
+	local max_char = 0
+	local middle = 1
+	local top_left = 2
+	local left = 3
+	local right = 4
+	local top_right = 5
+	local bottom_left = 6
+	local bottom_right = 7
+	local bottom = 8
+	local top = 9
+	for x=1,#arr do
+		if #arr[x].a > max_char then
+			max_char = #arr[x].a
+		end 
+	end
+	local w = max_char/1.7
+	local box_w = crsr.x
+	local spr_h = 0
+	local spr_w = 0
+	local s_reset = 0
+	local menu_w = 0
+	
+	if crsr.y > cam then
+		spr_h = -8
+		s_reset = crsr.y - 8
+	else
+		spr_h = 8
+		s_reset = crsr.y + 8
+	end
+	
+	if crsr.x > cam then
+		spr_w = -8
+		s_start = crsr.x-max_char*4
+	else
+		spr_w = 8
+		s_start=crsr.x+8
+	end
+
+	local box_h = s_reset
+	--print first corner box corresponding with cursor pos
+	if crsr.y > cam and crsr.x < cam then
+		print_box(bottom_left,box_w,box_h)
+	elseif crsr.y > cam and crsr.x > cam then
+		print_box(bottom_right,box_w,box_h)
+	elseif crsr.y < cam and crsr.x > cam then
+		print_box(top_right,box_w,box_h)
+	elseif crsr.y < cam and crsr.x < cam then
+		print_box(top_left,box_w,box_h)
+	end
+	box_h += spr_h
+	--print first side of box
+	for x=1,#arr do
+		if crsr.x < cam then
+		 print_box(left,box_w,box_h)
+		else
+			print_box(right,box_w,box_h)
+		end
+		box_h += spr_h
+	end
+	--print the opposite corner on the same same (left or right)
+	if crsr.y > cam and crsr.x < cam then
+		print_box(top_left,box_w,box_h)
+	elseif crsr.y > cam and crsr.x > cam then
+		print_box(top_right,box_w,box_h)
+	elseif crsr.y < cam and crsr.x > cam then
+		print_box(bottom_right,box_w,box_h)
+	elseif crsr.y < cam and crsr.x < cam then
+		print_box(bottom_left,box_w,box_h)
+	end
+	box_h = s_reset
+	--along the width,fill in the middle sprites
+	for x=1,w do
+		box_w += spr_w
+		if crsr.y > cam then
+			print_box(bottom,box_w,box_h)
+		else
+			print_box(top,box_w,box_h)
+		end
+		box_h += spr_h
+		if crsr.y > cam then
+			for x=#arr,1,-1 do
+			 	print_box(middle,box_w,box_h)
+			 	if active_char.moves < 1 and arr[x].a == "move" then
+				 	print(arr[x].a,s_start,box_h,13)
+					elseif active_char.attacks < 1 and arr[x].a == "attack" then
+						print(arr[x].a,s_start,box_h,13)
+					elseif arr[x].a == "special" and (active_char.specials < 1 or active_char.attacks < 1) then
+						print(arr[x].a,s_start,box_h,13)
+					else
+					 print(arr[x].a,s_start,box_h,1)
+					end
+			 	arr[x].y = box_h-2
+			 	if arrow.y == 0 and x==1 then
+			 		arrow.y = box_h-2
+			 		arrow.x = s_start + #arr[1].a*4
+			 		menu_w = box_w
+			 	end
+			 	box_h += spr_h
+			 end
+		else
+		 for x=1,#arr do
+		 	print_box(middle,box_w,box_h)
+		 	if active_char.moves < 1 and arr[x].a == "move" then
+			 	print(arr[x].a,s_start,box_h,13)
+				elseif active_char.attacks < 1 and arr[x].a == "attack" then
+						print(arr[x].a,s_start,box_h,13)
+					elseif arr[x].a == "special" and (active_char.specials < 1 or active_char.attacks < 1) then
+						print(arr[x].a,s_start,box_h,13)
+					else
+					 print(arr[x].a,s_start,box_h,1)
+					end
+		 	arr[x].y = box_h-2
+		 	if arrow.y == 0 and x==1 then
+		 		arrow.y = box_h-2
+		 		arrow.x = s_start + #arr[1].a*4
+		 		menu_w = box_w - (#arr*4)
+		 	end
+		 	box_h += spr_h
+		 end
+		end
+		if crsr.y > cam then
+		 print_box(top,box_w,box_h)
+		else
+			print_box(bottom,box_w,box_h)
+		end 
+	 box_h = s_reset
+	end	
+	box_w += spr_w
+	if crsr.y > cam and crsr.x < cam then
+		print_box(bottom_right,box_w,box_h)
+	elseif crsr.y > cam and crsr.x > cam then
+		print_box(bottom_left,box_w,box_h)
+	elseif crsr.y < cam and crsr.x > cam then
+		print_box(top_left,box_w,box_h)
+	elseif crsr.y < cam and crsr.x < cam then
+		print_box(top_right,box_w,box_h)
+	end
+	box_h += spr_h
+	for x=1,#arr do
+		if crsr.x < cam then
+		 print_box(right,box_w,box_h)
+		else
+			print_box(left,box_w,box_h)
+		end
+		box_h += spr_h
+	end
+	if crsr.y > cam and crsr.x < cam then
+		print_box(top_right,box_w,box_h)
+	elseif crsr.y > cam and crsr.x > cam then
+		print_box(top_left,box_w,box_h)
+	elseif crsr.y < cam and crsr.x > cam then
+		print_box(bottom_left,box_w,box_h)
+	elseif crsr.y < cam and crsr.x < cam then
+		print_box(bottom_right,box_w,box_h)
+	end
+end
+
+function print_arrow(x,y,i)
+	local ad = {{d="up",x=64,y=80,posx=x,posy=y,xf=false,yf=true,s=16},
+	{d="down",x=64,y=80,posx=x,posy=y,xf=false,xy=false,s=16},
+	{d="left",x=32,y=80,posx=x,posy=y,xf=true,xy=false,s=16},
+	{d="right",x=32,y=80,posx=x,posy=y,xf=false,xy=false,s=16},
+	{d="up_left",x=48,y=80,posx=x,posy=y,xf=false,yf=false,s=16},
+	{d="up_right",x=48,y=80,posx=x,posy=y,xf=true,yf=false,s=16},
+	{d="down_left",x=48,y=80,posx=x,posy=y,xf=false,yf=true,s=16},
+	{d="down_right",x=48,y=80,posx=x,posy=y,xf=true,yf=true,s=16},
+	{d="up_end",x=40,y=72,posx=x+4,posy=y+8,xf=false,yf=true,s=8},
+	{d="down_end",x=40,y=72,posx=x+4,posy=y,xf=false,yf=false,s=8},
+	{d="left_end",x=32,y=72,posx=x+8,posy=y+4,xf=false,yf=false,s=8},
+	{d="right_end",x=32,y=72,posx=x,posy=y+4,xf=true,yf=false,s=8}}
+	
+	
+	sspr(ad[i].x,ad[i].y,ad[i].s,ad[i].s,ad[i].posx,ad[i].posy,ad[i].s,ad[i].s,ad[i].xf,ad[i].yf)
+end
+
+
+
+function seq_arrows(first,prev,current)
+	if not prev then
+		current.d=9
+	elseif not first then
+		if current.x==prev.x and current.y<prev.y then
+			current.d=9
+			prev.d=1
+		elseif current.x==prev.x and current.y>prev.y then
+			current.d=10
+			prev.d=2
+		elseif current.y==prev.y and current.x<prev.x then
+			current.d=11
+			prev.d=3
+		elseif current.y==prev.y and current.x>prev.x then
+			current.d=12
+			prev.d=4
+		end
+	else
+		if current.x==prev.x and current.y<prev.y and first.x==prev.x and first.y>prev.y then
+			current.d=9
+			prev.d=1
+		elseif current.x==prev.x and current.y>prev.y and first.x==prev.x and first.y<prev.y then
+			current.d=10
+			prev.d=2
+		elseif current.y==prev.y and current.x<prev.x and first.y==prev.y and prev.x<first.x then
+			current.d=11
+			prev.d=3
+		elseif current.y==prev.y and current.x>prev.x and first.y==prev.y and prev.x>first.x then
+			current.d=12
+			prev.d=4
+		elseif first.x==prev.x and first.y<prev.y and current.y==prev.y and current.x<prev.x then
+			current.d=11
+			prev.d=7
+		elseif first.x==prev.x and first.y<prev.y and current.y==prev.y and current.x>prev.x then
+			current.d=12
+			prev.d=8
+		elseif first.x==prev.x and first.y>prev.y and current.y==prev.y and current.x<prev.x then
+			current.d=11
+			prev.d=5
+		elseif first.x==prev.x and first.y>prev.y and current.y==prev.y and current.x>prev.x then
+			current.d=12
+			prev.d=6
+		elseif first.x>prev.x and first.y==prev.y and current.y>prev.y and current.x==prev.x then
+			current.d=10
+			prev.d=6
+		elseif first.x>prev.x and first.y==prev.y and current.y<prev.y and current.x==prev.x then
+			current.d=9
+			prev.d=8
+		elseif first.x<prev.x and first.y==prev.y and current.y<prev.y and current.x==prev.x then
+			current.d=9
+			prev.d=7
+		elseif first.x<prev.x and first.y==prev.y and current.y>prev.y and current.x==prev.x then
+			current.d=10
+			prev.d=5
+		end
+	end
+end
+
+function assign_dir(arr)
+	for x=1,#arr do
+	 	seq_arrows(arr[x-2],arr[x-1],arr[x])
+	end
+end	
+
+function attack_range(cx,cy)
+	if setting_attack or updating_dmg then
+		return
+	end
+	range_spaces = {}
+	attack_targets = {}
+	local up = {x=cx,y=cy}
+	local down = {x=cx,y=cy}	
+	local left = {x=cx,y=cy}
+	local right = {x=cx,y=cy}
+	for x=1, active_char.range do
+		up={x=up.x,y=up.y-tile}
+		add(range_spaces,up)
+		down={x=down.x,y=down.y+tile}
+		add(range_spaces,down)
+		left={x=left.x-tile,y=left.y}
+		add(range_spaces,left)
+		right={x=right.x+tile,y=right.y}
+		add(range_spaces,right)
+	end
+	for space in all(range_spaces) do
+		if active_player then
+			if indexof(space.x,space.y,active_enemies) then
+				add(attack_targets,space)
+			end
+		else 
+			if indexof(space.x,space.y,active_heroes) then
+				add(attack_targets,space)
+			end
+		end
+	end
+end	

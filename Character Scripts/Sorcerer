@@ -1,0 +1,86 @@
+--sorcerer									
+									
+function get_sorcerer()									
+	sorcerer = {x=start_pos[3].x,								
+	y=start_pos[3].y,								
+	x_flip=false,								
+	y_flip=false,								
+	movement=3,								
+	action=state[1],								
+	i=0,								
+	ani_frame=0,								
+	ani_spd=5,								
+	ani_loop=0,								
+	range=3,
+	hp=15,
+	attack=14,
+	tb=1,
+	moves=1,
+	attacks=1,
+	specials=1,
+	name="sorcerer",
+	p_x=0,
+	p_y=0,					
+	idle = {{sprite=1,x=0,y=48},								
+	{sprite=2,x=16,y=48}},
+	move = {{sprite=1,x=16,y=48},								
+	{sprite=2,x=112,y=48}}}						
+	sorc_attack = {{sprite=1,x=32,y=48},								
+	{sprite=2,x=48,y=48},								
+	{sprite=3,x=64,y=48},								
+	{sprite=4,x=48,y=48},								
+	{sprite=5,x=64,y=48},								
+	{sprite=6,x=80,y=48},								
+	{sprite=7,x=96,y=48},								
+	{sprite=8,x=80,y=48},								
+	{sprite=9,x=96,y=48}}																				
+end					
+
+function get_sorc_colour()
+	if sorcerer.action == state[5] then				
+		if sorcerer.i > 10 then			
+			palt(0,true)		
+			col=pal({[15]=8,[4]=8,[3]=8,[5]=8,[9]=8,[7]=8,[6]=8})		
+		else			
+			col=pal({[15]=8,[4]=8,[3]=8,[5]=8,[9]=8,[7]=8,[6]=8,[0]=8})		
+		end			
+	end				
+end				
+									
+function get_sorc_sprite()									
+	if sorcerer.action == state[1] then								
+		idle_animation(sorcerer)	
+	elseif sorcerer.action == state[2] then								
+		sorcerer_attack(sorcerer,4)	
+	elseif sorcerer.action == state[4] then								
+		move_animation(sorcerer)	
+	elseif sorcerer.action == state[3] then								
+		sorcerer_attack(sorcerer,8)		
+	elseif sorcerer.action == state[5] then
+		kill_character(sorcerer)
+	elseif sorcerer.action == state[6] then	
+		damage_animation(sorcerer)	
+	end								
+end									
+
+--sorcerer animations
+
+function sorcerer_attack(char,s)
+	char.ani_spd = s		
+if char.ani_frame != char.ani_spd then		
+	char.ani_frame += 1	
+else		
+	char.ani_frame = 0	
+	if char.i == 9 then	
+		set_slash_arrs()
+		update_dmg_states(char)	
+	elseif char.i == 1 then	
+		sfx(23,-1)
+		char.i += 1
+	else	
+		char.i += 1
+	end	
+	char.p_x = sorc_attack[char.i].x	
+	char.p_y = sorc_attack[char.i].y	
+	end
+end		

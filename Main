@@ -1,0 +1,328 @@
+--pocket tactics
+--calvin pavlidis
+
+function _init()
+	level = 0
+	max_level = 6
+	li = 1
+	music(0,1000,1)
+ tile = 16
+	palt(14,true)
+	palt(0,false)
+	state = {"idle",
+	"attack",
+	"special",
+	"move",
+	"dead",
+	"damaged"}
+	actions = {{a="move",y=0},
+	{a="attack",y=0},
+	{a="special",y=0},
+	{a="end",y=0}}	
+	ai = 1
+	arrow = {x=0,y=0}
+	pi=1
+	moveable_space=false
+	s_start = 0
+	active_enemy_i = 1
+	new_level(0,0)
+end
+
+function _update()
+	get_s_sprite()
+	get_a_sprite()
+	get_sorc_sprite()
+	get_es_sprite()
+	get_ea_sprite()
+	get_e_sorc_sprite()
+	next_level_title()
+	if slash_animation then
+		get_slash_sprites()
+	end
+	ani_cursor()
+	crsr_x_bind = crsr.x
+	crsr_y_bind = crsr.y
+	if menu_closed then
+		if not game_over then
+			ai = 1
+		else
+			ai = 2
+		end
+		option = {}
+		arrow.y = 0
+		if btnp(0) or btnp(1) or btnp(2) or btnp(3) then
+			if (level_title) or not active_player return
+			if (btnp(0)) crsr.x -= 16
+			if (btnp(1))	crsr.x += 16 
+			if (btnp(2))	crsr.y -= 16 
+			if (btnp(3)) crsr.y += 16 
+			sfx(4,-1)
+			if crsr.x < cam.x or crsr.x > (cam.x + 127) then
+				crsr.x = crsr_x_bind
+			end
+			if crsr.y < cam.y or crsr.y > (cam.y + 127) then
+				crsr.y = crsr_y_bind
+			end 
+			char_select(crsr.x,crsr.y)
+			attack_range(active_char.x,active_char.y)
+			if not setting_move and char_select(crsr.x,crsr.y) then
+				find_moveable_spaces(active_char.x,active_char.y,active_char.movement)
+			end
+			if setting_move and can_move(crsr.x,crsr.y) then
+				if not move_cost[crsr.x..','..crsr.y] then
+					moveable_space=false
+					return
+				elseif move_cost[crsr.x..','..crsr.y]>char_movement then
+					moveable_space=false
+					return
+				else
+					a_star(active_char.x,active_char.y,crsr.x,crsr.y)
+					assign_dir(closed)
+					attack_range(crsr.x,crsr.y)
+				end
+			end
+			
+		end
+		if (btnp(🅾️)) setting_move = false setting_attack = false setting_special = false sfx(6,-1)
+	
+	else
+		if btnp(2) then
+			if (ai != 1 and not game_over) or (game_over and ai!=2) then
+		 	ai-=1
+		 else
+		 	if game_over then
+		 		ai = #fail_message
+		 	else
+		  	ai = #actions
+		  end
+		 end 
+			sfx(5,-1)
+		end
+		if btnp(3) then
+			if (ai != #actions and not game_over) or (fail_message and (ai!=#fail_message and game_over)) then
+				ai+=1
+			else
+				if game_over then
+					ai = 2
+				else
+			 	ai = 1
+			 end
+			end 
+			
+			sfx(5,-1)
+		end
+		if not game_over then
+			arrow.x = s_start + #actions[ai].a*4
+			arrow.y = actions[ai].y 
+		else
+			arrow.x = s_start + #fail_message[ai].a*4
+			arrow.y = fail_message[ai].y
+		end
+		if (btnp(🅾️)) menu_closed = true sfx(6)
+	end
+	if btnp(❎) then
+		if game_over then
+	 	if arrow.y == fail_message[2].y then
+				if level == max_level and #active_heroes > 0 then
+					extcmd("shutdown")
+				else
+					level -= 1
+					new_level(map_pos.x,map_pos.y)
+					game_over = false
+					menu_closed = true
+				end
+			elseif arrow.y == fail_message[3].y then
+				extcmd("shutdown")
+			end
+		end
+	 if char_select(crsr.x,crsr.y) and not setting_move then
+	  if menu_closed then
+		  menu_closed=false 
+		  sfx(5,-1)	
+		 else
+		 	sfx(5,-1)
+		 	if arrow.y == actions[1].y then
+		 		if active_char.moves > 0 then
+		 			set_move()
+		 			menu_closed = true
+		 		else
+		 			sfx(7,-1)
+		 		end
+		 	elseif arrow.y == actions[2].y then
+		 		if active_char.attacks > 0 and #attack_targets >0 then
+			 		set_attack()
+			 		menu_closed = true
+			 	else
+			 		sfx(7,-1)
+		 		end
+		 	elseif arrow.y == actions[3].y then
+		 		if active_char.attacks > 0 and active_char.specials > 0 then
+			 		set_special()
+			 		menu_closed = true
+			 	else
+			 		sfx(7,-1)
+		 		end
+		 	elseif arrow.y == actions[4].y then
+		 		if active_player then
+		 			active_player = false
+		 			menu_closed = true
+		 			for hero in all(active_heroes) do
+			 			hero.moves = 1
+			 			hero.attacks = 1
+		 			end
+		 			active_char = active_enemies[active_enemy_i]
+		 			move_enemy(active_char)
+		 		end
+		 	end
+		 end	
+	 elseif setting_move then
+  	if moveable_space then
+	  	setting_move=false
+	  	menu_closed = true
+		 	active_char.moves -= 1
+	  	move()
+	  else
+  	 sfx(7,-1)
+  	end
+	 elseif setting_attack then
+	 	if in_range(crsr.x,crsr.y) then
+	 		menu_closed = true	
+	 		setting_attack=false 		
+	 		if setting_special then
+	 			setting_special=false
+	 			special()
+	 		else
+	 			attack()
+	 		end
+	 	else
+  	 sfx(7,-1)
+  	end
+  end
+	end	
+end
+
+function _draw()
+	cls()
+	camera(cam.x,cam.y)
+	map(map_pos.x,map_pos.y)
+	if active_player and char_select(crsr.x,crsr.y) and active_char.action == state[1] or setting_move or setting_attack then
+ 	if not setting_attack or not setting_special then
+	 	for space in all(queue) do
+		 	sspr(16,80,16,16,space.x,space.y)
+		 end
+		end
+	 for space in all(attack_targets) do
+	 	sspr(80,80,16,16,space.x,space.y)
+	 end
+	 if setting_move and moveable_space then
+	 	for arrow in all(closed) do
+	 		print_arrow(arrow.x,arrow.y,arrow.d)			
+			end
+		else
+			spr(177,crsr.x+4,crsr.y+4)
+		end
+ end
+ get_s_colours()
+ sspr(soldier.p_x,soldier.p_y,16,16,soldier.x,
+ soldier.y,16,16,soldier.x_flip,soldier.y_flip)
+ reset_col()
+ get_a_colour()
+ sspr(archer.p_x,archer.p_y,16,16,archer.x,archer.y,16,16,archer.x_flip,archer.y_flip)
+ reset_col()
+ get_sorc_colour()
+ sspr(sorcerer.p_x,sorcerer.p_y,16,16,sorcerer.x,sorcerer.y,16,16,sorcerer.x_flip,sorcerer.y_flip)
+ reset_col()
+ get_enemy_soldier_col()
+ sspr(enemy_soldier.p_x,enemy_soldier.p_y,16,16,enemy_soldier.x,enemy_soldier.y,16,16,enemy_soldier.x_flip,enemy_soldier.y_flip)
+ reset_col()
+ get_enemy_archer_col()
+ sspr(enemy_archer.p_x,enemy_archer.p_y,16,16,enemy_archer.x,enemy_archer.y,16,16,enemy_archer.x_flip,enemy_archer.y_flip)
+	reset_col()
+	get_enemy_sorcerer_col()
+	sspr(enemy_sorcerer.p_x,enemy_sorcerer.p_y,16,16,enemy_sorcerer.x,enemy_sorcerer.y,16,16,enemy_sorcerer.x_flip,enemy_sorcerer.y_flip)
+ reset_col()
+ if active_player and (char_select(crsr.x,crsr.y) or enemy_selected(crsr.x,crsr.y)) and menu_closed and active_player and not setting_move and active_char.action==state[1] and not attacking() then
+  if setting_attack then
+  	if enemy_selected(crsr.x,crsr.y) and indexof(crsr.x,crsr.y,attack_targets) then
+	  	local character_stats = {{a=ne.name},
+		  {a="hp: "..ne.hp.." >>> "..ne.hp-ceil(active_char.attack/ne.tb)},
+		  {a="attack: "..ne.attack},
+		  {a="range: "..ne.range},
+		  {a="tb: "..ne.tb}}
+		  menu_box(character_stats)
+  	end
+  else
+	  local character_stats = {{a=active_char.name},
+	  {a="hp: "..active_char.hp},
+	  {a="attack: "..active_char.attack},
+	  {a="range: "..active_char.range},
+	  {a="tb: "..active_char.tb}}
+	  menu_box(character_stats)
+ 	end
+ end
+ if (not menu_closed and not game_over) menu_box(actions)
+ if #active_heroes < 1 or game_over then
+ 	fail_message = {{a="you lose",y=0},
+ 	{a="restart level",y=0},
+ 	{a="quit",y=0}}
+ 	if (level == max_level and #active_heroes > 0) del(fail_message,fail_message[2]) fail_message[1].a = "you finished the game!" crsr.x=0
+ 	menu_box(fail_message)
+ 	menu_closed = false
+ 	if (arrow.y==fail_message[1].y) arrow.y=fail_message[2].y ai=2
+ 	game_over = true
+ end
+ if active_player or game_over then
+	 if menu_closed then
+	 	if active_char.action == state[1] and not level_title then
+	 		sspr(crsr.sx,crsr.sy,16,16,crsr.x,
+	 crsr.y,16,16)
+	 	end
+	 else
+	 	spr(148,arrow.x,arrow.y)
+	 end
+	end
+ local cx = crsr.x
+ local cy = crsr.y
+ if slash_animation then
+ 	for char in all(slash_chars) do
+ 		sspr(ssp[char].x,ssp[char].y,16,16,ssp[char].px,ssp[char].py)
+ 	end
+ end
+ if screen_flash then
+ 	rectfill(cam.x,cam.y,cam.x+127,cam.y+127,7)
+		sfx(0,-1)
+		flash_screen()
+	end
+ if #active_enemies < 1 and not game_over then
+ 	if (level == max_level) game_over = true return
+ 	level_str = {{a="victory"}}
+ 	crsr.x = 80
+ 	crsr.y = 64
+ 	menu_closed = true
+ 	level_title = true
+ 	if (li == 59) new_level(map_pos.x+16,0) li=1
+ end
+ 
+ if level_title then
+ 	menu_box(level_str)
+ end
+end
+
+function reset_col()
+	pal()
+ palt(14,true)
+	palt(0,false)
+end
+
+function next_level_title()
+	if not level_title then
+		return
+	end	
+	if li == 60 then
+		li = 1
+		level_title=false
+	else
+		li+=1
+	end
+end
+		

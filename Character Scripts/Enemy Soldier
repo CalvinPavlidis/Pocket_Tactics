@@ -1,0 +1,53 @@
+--enemy soldier
+
+function get_enemy_soldier()
+	enemy_soldier = {x=e_start_pos[1].x,
+	y=e_start_pos[1].y,
+	x_flip=true,
+	y_flip=false,
+	movement=3,
+	action=state[1],
+	i=0,
+	ani_frame=0,
+	ani_spd=3,
+	ani_loop=0,
+	range=1,
+	hp=22,
+	attack=16,
+	tb=1,
+	moves=1,
+	attacks=1,
+	name="enemy soldier",
+	move=soldier.move,
+	idle=soldier.idle,
+	p_x=0,
+	p_y=0}
+end
+
+function get_enemy_soldier_col()
+	enemy_col=pal({[13]=0,[12]=8,[6]=13})
+	if enemy_soldier.action == state[5] then
+		if enemy_soldier.i > 10 then
+			palt(0,true)
+			enemy_col=pal({[13]=8,[12]=8,[6]=8,[4]=8,[15]=8,[7]=8})
+		else
+			enemy_col=pal({[13]=8,[12]=8,[6]=8,[0]=8,[4]=8,[15]=8,[7]=8})
+		end
+	end
+end
+
+function get_es_sprite()						
+	if enemy_soldier.action == state[1] then					
+		idle_animation(enemy_soldier)
+	elseif enemy_soldier.action == state[2] then					
+		soldier_attack(enemy_soldier)
+	elseif enemy_soldier.action == state[4] then					
+		move_animation(enemy_soldier)
+	elseif enemy_soldier.action == state[3] then					
+		soldier_special(enemy_soldier)				
+	elseif enemy_soldier.action == state[5] then
+		kill_character(enemy_soldier)
+	elseif enemy_soldier.action == state[6] then				
+		damage_animation(enemy_soldier)
+	end
+end						

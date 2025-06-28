@@ -1,0 +1,116 @@
+--soldier
+
+function get_soldier()
+	soldier = {x=start_pos[1].x,
+	y=start_pos[1].y,
+	x_flip=false,
+	y_flip=false,
+	movement=3,
+	action=state[1],
+	i=0,
+	ani_frame=0,
+	ani_spd=3,
+	ani_loop=0,
+	moves=1,
+	attacks=1,
+	specials=1,
+	range=1,
+	hp=22,
+	attack=16,
+	tb=1,
+	moves=1,
+	name="soldier",
+	p_x=0,
+	p_y=0,
+	idle = {{sprite=1,x=8,y=0},
+	{sprite=2,x=24,y=0},
+	{sprite=3,x=40,y=0}},
+	move = {{sprite=1,x=8,y=16},
+	{sprite=2,x=24,y=16}}}
+	s_attack = {{sprite=1,x=56,y=0},
+	{sprite=2,x=72,y=0},
+	{sprite=3,x=88,y=0}}
+	s_special= {{sprite=1,x=88,y=0,xf=false,yf=false},
+	{sprite=2,x=56,y=16,xf=false,yf=false},
+	{sprite=3,x=88,y=0,xf=true,yf=false},
+	{sprite=4,x=40,y=16,xf=true,yf=false}}
+	find_moveable_spaces(soldier.x,soldier.y,soldier.movement)
+	--a_star(soldier.x,soldier.y,crsr.x,crsr.y)
+end
+
+function get_s_colours()
+	if soldier.action == state[5] then					
+		if soldier.i > 10 then			
+			palt(0,true)		
+			col=pal({[13]=8,[12]=8,[6]=8,[0]=8,[4]=8,[15]=8,[7]=8})		
+		else			
+			col=pal({[13]=8,[12]=8,[6]=8,[0]=8,[4]=8,[15]=8,[7]=8})		
+		end							
+	else					
+		return				
+	end			
+end		
+
+function get_s_sprite()						
+	if soldier.action == state[1] then					
+		idle_animation(soldier)	
+	elseif soldier.action == state[2] then					
+		soldier_attack(soldier)
+	elseif soldier.action == state[4] then					
+		move_animation(soldier)
+	elseif soldier.action == state[3] then					
+		soldier_special(soldier)
+	elseif soldier.action == state[5] then		
+		kill_character(soldier)
+	elseif soldier.action == state[6] then								
+		damage_animation(soldier)
+	end
+end						
+
+--soldier animations
+
+function soldier_attack(char)
+	if char.ani_frame != char.ani_spd then					
+			char.ani_frame += 1		
+	else			
+		char.ani_frame = 0		
+		if char.i == 3 then
+			set_slash_arrs()		
+			update_dmg_states(char)
+		elseif char.i == 1 then		
+			sfx(0,-1)	
+			char.i += 1	
+		else		
+			char.i += 1	
+		end		
+		char.p_x = s_attack[char.i].x		
+		char.p_y = s_attack[char.i].y		
+	end	
+end		
+
+function soldier_special(char)
+	if char.ani_frame != char.ani_spd then						
+		if (char.i ==1)	sfx(3,-1)	set_slash_arrs()		
+			char.ani_frame += 1			
+		else				
+			char.ani_frame = 0			
+			if char.i == 4 then			
+				char.i=1		
+				sfx(1,-1)		
+				if char.ani_loop == 2 then		
+					char.ani_loop = 0	
+					update_dmg_states(active_char)
+					char.action = state[1]	
+					char.ani_spd = 4	
+				else		
+				char.ani_loop += 1		
+				end		
+			else			
+				char.i += 1		
+			end		
+			char.p_x = s_special[char.i].x			
+			char.p_y = s_special[char.i].y			
+			char.x_flip = s_special[char.i].xf			
+			char.y_flip = s_special[char.i].yf			
+		end				
+end

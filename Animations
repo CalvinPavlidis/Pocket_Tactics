@@ -1,0 +1,222 @@
+--animations
+		
+function attack()
+	slash_sprites = {}
+ active_char.action = state[2]
+ active_char.i = 0
+ active_char.ani_frame = 0
+ active_char.ani_spd = 4
+ active_char.attacks -= 1
+	menu_closed = true
+	updating_dmg = true
+end
+
+function move()
+ if active_char.action != state[4] then
+	 active_char.action = state[4]
+	 active_char.i = 0
+	 active_char.ani_frame = 0
+	 active_char.ani_spd = 5
+	 pi = 1
+	end
+end
+
+function set_special()
+	setting_special = true
+	setting_attack = true
+end
+
+function special()
+	slash_sprites = {}
+ active_char.action = state[3]
+ active_char.i = 1
+ active_char.ani_frame = 0
+ active_char.ani_spd = 2
+ active_char.specials = 0
+ active_char.attacks = 0
+ menu_closed = true
+ updating_dmg = true
+end
+
+function set_attack()
+	setting_attack = true
+end
+
+function set_move()
+ char_movement = active_char.movement
+	a_star(active_char.x,active_char.y,crsr.x,crsr.y)
+	setting_move=true	
+end
+
+function attacking()
+	for character in all(active_heroes) do
+		if character.action == state[2] or character.action == state[3] then
+			return true
+		end
+	end
+	return false
+end
+
+function inflict_dmg(char)
+	if char.tb > 1 then
+		char.hp -= ceil(active_char.attack/2)
+	else
+		char.hp -= active_char.attack
+	end
+ if char.hp < 1 then
+ 	char.i = 1
+ 	char.action = state[5]
+ else
+ 	slash_ani(char)
+ 	char.action = state[1]
+ 	attacking_player = false
+ end
+ updating_dmg = false
+end
+
+function kill_character(char)
+	if char.i == 25 then
+	 if enemy_selected(char.x,char.y) then
+ 		del(active_enemies,char)
+ 	else
+ 		del(active_heroes,char)
+ 		if #active_heroes == 0 then
+				active_enemy_i = #active_enemies
+			end
+ 	end
+ 	attacking_player = false
+		char.x = -20
+		char.y = -20
+		char.i = 1
+		char.action = state[1]
+	elseif char.i == 1 then
+		sfx(22,-1)
+		char.i += 1
+	else
+		char.i += 1
+	end
+end
+
+function move_animation(char)
+	if char.ani_frame != char.ani_spd then				
+			char.ani_frame += 1	
+	else		
+		char.ani_frame = 0	
+		if char.i >1 then	
+			char.i=1
+			sfx(1,-1)
+		else	
+			char.i += 1
+			sfx(2,-1)
+		end	
+		char.p_x = char.move[char.i].x	
+		char.p_y = char.move[char.i].y			
+		move_char(active_char,closed)	
+	end		
+end
+
+function idle_animation(char)
+	char.ani_spd = 4		
+	if char.ani_frame != char.ani_spd then		
+		char.ani_frame += 1	
+	else		
+		char.ani_frame = 0	
+		if (char.i == 3 and (char == archer or char == soldier or char == enemy_soldier or char == enemy_archer)) or (char.i==2 and (char==sorcerer or char==enemy_sorcerer)) then	
+			char.i = 1
+			if not running_function and not active_player and not attacking_player and active_char == char then	
+				end_move()
+			end	
+		else	
+			char.i += 1
+		end	
+			char.p_x = char.idle[char.i].x	
+			char.p_y = char.idle[char.i].y	
+	end				
+end
+
+function damage_animation(char)
+	if char.ani_frame != char.ani_spd then				
+		char.ani_frame += 1
+	else
+		char.ani_frame = 1
+		if char.i >= 2 then
+			if char.x_flip then
+				char.x -= 3
+			else
+				char.x += 3
+			end
+			char.i = 1
+			inflict_dmg(char)
+		else
+			if char.x_flip then
+				char.x += 3
+			else
+				char.x -= 3
+			end
+			char.i += 1
+		end
+	end
+end
+			
+function update_dmg_states(char)
+	char.i=1	
+	if char.action == state[3] then
+		for enemy in all(attack_targets) do
+			updating_dmg = true
+			enemy_selected(enemy.x,enemy.y)
+			ne.action = state[6]
+			ne.i = 1
+		end
+	else
+		ne.action = state[6]
+		ne.i = 1	
+	end
+	char.action = state[1]
+end	
+	
+function slash_ani(char)
+	add(slash_chars,char.name)
+	slash_animation = true
+	slash[char.name] = {i=1,spd=2}
+	slash_sprites[char.name]={{x=72,y=16,px=ne.x,py=ne.y},
+	{x=88,y=16,px=char.x,py=char.y},
+	{x=104,y=16,px=char.x,py=char.y},
+	{x=104,y=16,px=char.x,py=char.y}}
+end
+
+function get_slash_sprites()
+	for char in all(slash_chars) do		
+		ssp[char] = {x=slash_sprites[char][slash[char].i].x,		
+		y=slash_sprites[char][slash[char].i].y,		
+		px=slash_sprites[char][slash[char].i].px,		
+		py=slash_sprites[char][slash[char].i].py}		
+		slash[char].spd -= 1		
+		if slash[char].spd < 1 then		
+			slash[char].spd = 2
+			slash[char].i += 1	
+			if slash[char].i == 5 then	
+				slash[char].i = 1
+				slash_animation = false
+				flash_screen()
+			end	
+		end		
+	end
+end					
+
+function flash_screen()
+	if slash[slash_chars[1]].i == 1 then
+		screen_flash = true
+		slash[slash_chars[1]].i += 1
+	else	
+		screen_flash = false
+		slash[slash_chars[1]].i = 1
+	end
+end
+
+function set_slash_arrs()
+	slash = {}
+	slash_sprites = {}
+	ssp = {}
+	slash_chars = {}
+end
+	

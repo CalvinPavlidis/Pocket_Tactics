@@ -1,0 +1,50 @@
+--level manager
+
+function new_level(mx,my)
+ cam = {x=0,y=0}
+ map_pos = {x=mx,y=my}
+ start_pos ={}
+ e_start_pos = {}
+ get_starting_points()
+ get_cursor()
+	active_player=true
+ crsr.x = cam.x+80
+ crsr.y = cam.y+64
+	get_soldier()
+	get_archer()
+	get_sorcerer()
+	get_enemy_soldier()
+	get_enemy_archer()
+	get_enemy_sorcerer()
+	menu_closed=true
+	setting_move=false
+	active_char=soldier
+	active_heroes = {soldier,archer,sorcerer}
+	active_enemies = {enemy_soldier,enemy_archer,enemy_sorcerer}
+	attack_range(active_char.x,active_char.y)
+	ne=enemy_soldier
+	slash_chars = {}
+	level += 1
+	level_str ={{a="level "..level}}
+	level_title = true
+end
+
+function get_starting_points()
+	local mx = map_pos.x
+	local my = map_pos.y
+	local mxo = mx*8
+	local myo = my*8
+	for x=1,64 do
+		if fget(mget(mx,my),2) then
+			add(start_pos,{x=mx*8-mxo,y=my*8-myo})
+		end
+		if fget(mget(mx,my),3) then
+			add(e_start_pos,{x=mx*8-mxo,y=my*8-myo})
+		end
+		my += 2
+		if x/8 == ceil(x/8) then
+			my = myo
+			mx += 2
+		end
+	end
+end

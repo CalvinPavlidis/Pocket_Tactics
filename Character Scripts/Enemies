@@ -1,0 +1,35 @@
+--enemies
+
+function get_enemy_archer()								
+	enemy_archer = {}
+	for key, value in pairs(archer) do
+		enemy_archer[key] = value
+	end						
+	enemy_archer.x_flip=true
+	enemy_archer.name="enemy archer"
+	enemy_archer.x = e_start_pos[2].x
+	enemy_archer.y = e_start_pos[2].y
+
+end										
+								
+function get_enemy_soldier()
+	enemy_soldier = {}
+	for key, value in pairs(soldier) do
+		enemy_soldier[key] = value
+	end	
+	enemy_soldier.x_flip = true
+	enemy_soldier.name = "enemy soldier"
+	enemy_soldier.x = e_start_pos[1].x
+	enemy_soldier.y = e_start_pos[1].y
+end	
+
+function get_enemy_sorcerer()							
+	enemy_sorcerer = {}
+	for key, value in pairs(sorcerer) do
+		enemy_sorcerer[key] = value
+	end	
+	enemy_sorcerer.x_flip = true
+	enemy_sorcerer.name = "enemy sorcerer"
+	enemy_sorcerer.x = e_start_pos[3].x	
+	enemy_sorcerer.y = e_start_pos[3].y			
+end	

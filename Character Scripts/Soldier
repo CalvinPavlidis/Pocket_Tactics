@@ -36,36 +36,7 @@ function get_soldier()
 	{sprite=4,x=40,y=16,xf=true,yf=false}}
 	find_moveable_spaces(soldier.x,soldier.y,soldier.movement)
 	--a_star(soldier.x,soldier.y,crsr.x,crsr.y)
-end
-
-function get_s_colours()
-	if soldier.action == state[5] then					
-		if soldier.i > 10 then			
-			palt(0,true)		
-			col=pal({[13]=8,[12]=8,[6]=8,[0]=8,[4]=8,[15]=8,[7]=8})		
-		else			
-			col=pal({[13]=8,[12]=8,[6]=8,[0]=8,[4]=8,[15]=8,[7]=8})		
-		end							
-	else					
-		return				
-	end			
-end		
-
-function get_s_sprite()						
-	if soldier.action == state[1] then					
-		idle_animation(soldier)	
-	elseif soldier.action == state[2] then					
-		soldier_attack(soldier)
-	elseif soldier.action == state[4] then					
-		move_animation(soldier)
-	elseif soldier.action == state[3] then					
-		soldier_special(soldier)
-	elseif soldier.action == state[5] then		
-		kill_character(soldier)
-	elseif soldier.action == state[6] then								
-		damage_animation(soldier)
-	end
-end						
+end				
 
 --soldier animations
 

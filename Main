@@ -29,12 +29,12 @@ function _init()
 end
 
 function _update()
-	get_s_sprite()
-	get_a_sprite()
-	get_sorc_sprite()
-	get_es_sprite()
-	get_ea_sprite()
-	get_e_sorc_sprite()
+	for char in all(active_heroes) do
+		character_sprite(char)
+	end
+	for char in all(active_enemies) do
+		character_sprite(char)
+	end
 	next_level_title()
 	if slash_animation then
 		get_slash_sprites()
@@ -222,25 +222,18 @@ function _draw()
 			spr(177,crsr.x+4,crsr.y+4)
 		end
  end
- get_s_colours()
- sspr(soldier.p_x,soldier.p_y,16,16,soldier.x,
- soldier.y,16,16,soldier.x_flip,soldier.y_flip)
- reset_col()
- get_a_colour()
- sspr(archer.p_x,archer.p_y,16,16,archer.x,archer.y,16,16,archer.x_flip,archer.y_flip)
- reset_col()
- get_sorc_colour()
- sspr(sorcerer.p_x,sorcerer.p_y,16,16,sorcerer.x,sorcerer.y,16,16,sorcerer.x_flip,sorcerer.y_flip)
- reset_col()
- get_enemy_soldier_col()
- sspr(enemy_soldier.p_x,enemy_soldier.p_y,16,16,enemy_soldier.x,enemy_soldier.y,16,16,enemy_soldier.x_flip,enemy_soldier.y_flip)
- reset_col()
- get_enemy_archer_col()
- sspr(enemy_archer.p_x,enemy_archer.p_y,16,16,enemy_archer.x,enemy_archer.y,16,16,enemy_archer.x_flip,enemy_archer.y_flip)
+ for char in all(active_heroes) do
+	get_sprite_colors(char)
+	sspr(char.p_x,char.p_y,16,16,char.x,
+ char.y,16,16,char.x_flip,char.y_flip)
 	reset_col()
-	get_enemy_sorcerer_col()
-	sspr(enemy_sorcerer.p_x,enemy_sorcerer.p_y,16,16,enemy_sorcerer.x,enemy_sorcerer.y,16,16,enemy_sorcerer.x_flip,enemy_sorcerer.y_flip)
- reset_col()
+ end
+ for char in all(active_enemies) do
+	get_sprite_colors(char)
+	sspr(char.p_x,char.p_y,16,16,char.x,
+ char.y,16,16,char.x_flip,char.y_flip)
+	reset_col()
+ end
  if active_player and (char_select(crsr.x,crsr.y) or enemy_selected(crsr.x,crsr.y)) and menu_closed and active_player and not setting_move and active_char.action==state[1] and not attacking() then
   if setting_attack then
   	if enemy_selected(crsr.x,crsr.y) and indexof(crsr.x,crsr.y,attack_targets) then

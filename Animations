@@ -1,5 +1,25 @@
 --animations
 		
+function character_sprite(char)						
+	if char.action == state[1] then					
+		idle_animation(char)	
+	elseif char.action == state[2] then	
+		if (char == soldier or char == enemy_soldier) soldier_attack(char)
+		if (char == archer or char == enemy_archer) archer_attack(char,7)
+		if (char == sorcerer or char == enemy_sorcerer) sorcerer_attack(char,4)
+	elseif char.action == state[4] then					
+		move_animation(char)
+	elseif char.action == state[3] then	
+		if (char == soldier or char == enemy_soldier) soldier_special(char)			
+		if (char == archer or char == enemy_archer) archer_attack(char,10)
+		if (char == sorcerer or char == enemy_sorcerer) sorcerer_attack(char,8)
+	elseif char.action == state[5] then		
+		kill_character(char)
+	elseif char.action == state[6] then								
+		damage_animation(char)
+	end
+end		
+
 function attack()
 	slash_sprites = {}
  active_char.action = state[2]
@@ -121,7 +141,7 @@ function idle_animation(char)
 		char.ani_frame += 1	
 	else		
 		char.ani_frame = 0	
-		if (char.i == 3 and (char == archer or char == soldier or char == enemy_soldier or char == enemy_archer)) or (char.i==2 and (char==sorcerer or char==enemy_sorcerer)) then	
+		if (char.i >= 3 and (char == archer or char == soldier or char == enemy_soldier or char == enemy_archer)) or (char.i>=2 and (char==sorcerer or char==enemy_sorcerer)) then	
 			char.i = 1
 			if not running_function and not active_player and not attacking_player and active_char == char then	
 				end_move()
@@ -220,3 +240,65 @@ function set_slash_arrs()
 	slash_chars = {}
 end
 	
+function get_sprite_colors(char)
+	if char == soldier then
+		if soldier.action == state[5] then					
+			if soldier.i > 10 then			
+				palt(0,true)		
+				col=pal({[13]=8,[12]=8,[6]=8,[0]=8,[4]=8,[15]=8,[7]=8})		
+			else			
+				col=pal({[13]=8,[12]=8,[6]=8,[0]=8,[4]=8,[15]=8,[7]=8})		
+			end							
+		else					
+			return				
+		end		
+	elseif char == archer then
+		if archer.action == state[5] then						
+			if archer.i > 10 then				
+				palt(0,true)			
+				col=pal({[15]=8,[4]=8,[3]=8,[5]=8,[9]=8,[6]=8,[7]=8})			
+			else				
+				col=pal({[15]=8,[4]=8,[3]=8,[5]=8,[9]=8,[6]=8,[7]=8,[0]=8})			
+			end				
+		end	
+	elseif char == sorcerer then
+		if sorcerer.action == state[5] then				
+			if sorcerer.i > 10 then			
+				palt(0,true)		
+				col=pal({[15]=8,[4]=8,[3]=8,[5]=8,[9]=8,[7]=8,[6]=8})		
+			else			
+				col=pal({[15]=8,[4]=8,[3]=8,[5]=8,[9]=8,[7]=8,[6]=8,[0]=8})		
+			end			
+		end		
+	elseif char == enemy_soldier then
+		enemy_col=pal({[13]=0,[12]=8,[6]=13})
+		if enemy_soldier.action == state[5] then
+			if enemy_soldier.i > 10 then
+				palt(0,true)
+				enemy_col=pal({[13]=8,[12]=8,[6]=8,[4]=8,[15]=8,[7]=8})
+			else
+				enemy_col=pal({[13]=8,[12]=8,[6]=8,[0]=8,[4]=8,[15]=8,[7]=8})
+			end
+		end
+	elseif char == enemy_archer then
+		enemy_col=pal({[4]=8,[3]=1})
+		if enemy_archer.action == state[5] then						
+			if enemy_archer.i > 10 then				
+				palt(0,true)			
+				enemy_col=pal({[15]=8,[4]=8,[3]=8,[5]=8,[9]=8,[6]=8,[7]=8})			
+			else				
+				enemy_col=pal({[15]=8,[4]=8,[3]=8,[5]=8,[9]=8,[6]=8,[7]=8,[0]=8})			
+			end				
+		end		
+	else
+		enemy_col=pal({[4]=8,[2]=1,[12]=9,[8]=13})
+		if enemy_sorcerer.action == state[5] then				
+			if enemy_sorcerer.i > 10 then			
+				palt(0,true)		
+				enemy_col=pal({[4]=8,[2]=8,[12]=8,[8]=8,[15]=8,[5]=8,[6]=8})		
+			else			
+				enemy_col=pal({[4]=8,[2]=8,[12]=8,[8]=8,[15]=8,[5]=8,[6]=8,[0]=8})		
+			end			
+		end	
+	end
+end

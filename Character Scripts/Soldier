@@ -22,18 +22,18 @@ function get_soldier()
 	name="soldier",
 	p_x=0,
 	p_y=0,
-	idle = {{sprite=1,x=8,y=0},
-	{sprite=2,x=24,y=0},
-	{sprite=3,x=40,y=0}},
-	move = {{sprite=1,x=8,y=16},
-	{sprite=2,x=24,y=16}}}
-	s_attack = {{sprite=1,x=56,y=0},
-	{sprite=2,x=72,y=0},
-	{sprite=3,x=88,y=0}}
-	s_special= {{sprite=1,x=88,y=0,xf=false,yf=false},
-	{sprite=2,x=56,y=16,xf=false,yf=false},
-	{sprite=3,x=88,y=0,xf=true,yf=false},
-	{sprite=4,x=40,y=16,xf=true,yf=false}}
+	idle = {{sprite=1,x=0,y=0},
+	{sprite=2,x=16,y=0},
+	{sprite=3,x=32,y=0}},
+	move = {{sprite=1,x=0,y=16},
+	{sprite=2,x=16,y=16}}}
+	s_attack = {{sprite=1,x=48,y=0},
+	{sprite=2,x=64,y=0},
+	{sprite=3,x=8,y=0}}
+	s_special= {{sprite=1,x=80,y=0,xf=false,yf=false},
+	{sprite=2,x=48,y=16,xf=false,yf=false},
+	{sprite=3,x=80,y=0,xf=true,yf=false},
+	{sprite=4,x=32,y=16,xf=true,yf=false}}
 	find_moveable_spaces(soldier.x,soldier.y,soldier.movement)
 	--a_star(soldier.x,soldier.y,crsr.x,crsr.y)
 end				

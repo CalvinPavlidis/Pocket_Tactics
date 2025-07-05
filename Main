@@ -208,11 +208,17 @@ function _draw()
 	if active_player and char_select(crsr.x,crsr.y) and active_char.action == state[1] or setting_move or setting_attack then
  	if not setting_attack or not setting_special then
 	 	for space in all(queue) do
-		 	sspr(16,80,16,16,space.x,space.y)
+		 	spr(168,space.x,space.y)
+			spr(168,space.x+8,space.y)
+			spr(168,space.x,space.y+8)
+			spr(168,space.x+8,space.y+8)
 		 end
 		end
 	 for space in all(attack_targets) do
-	 	sspr(80,80,16,16,space.x,space.y)
+	 	spr(169,space.x,space.y)
+		spr(169,space.x+8,space.y)
+		spr(169,space.x,space.y+8)
+		spr(169,space.x+8,space.y+8)
 	 end
 	 if setting_move and moveable_space then
 	 	for arrow in all(closed) do

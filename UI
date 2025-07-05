@@ -6,10 +6,10 @@ function get_cursor()
 	c_spd = 2
 	c_frame = 0
 	ci = 1
-	c_frames = {{x=112,y=64},
-	{x=112, y=80},
-	{x=96,y=80},
-	{x=112, y=80}}
+	c_frames = {{x=96,y=64},
+	{x=112, y=64},
+	{x=112,y=80},
+	{x=112, y=64}}
 end 
 
 function ani_cursor()
@@ -128,15 +128,15 @@ function enemy_selected(x,y)
 end
 
 function print_box(i,box_w,box_h)
-	local bs = {{s="mid",x=24,y=72,xf=false,yf=false},
- {s="top l",x=0,y=80,xf=false,yf=false},
- {s="left", x=0,y=88,xf=false,yf=false},
- {s="right",x=0,y=88,xf=true,yf=false},
- {s="top r",x=0,y=80,xf=true,yf=false},
- {s="bottom l",x=0,y=80,xf=false,yf=true},
- {s="bottom r",x=0,y=80,xf=true,yf=true},
- {s="bottom",x=8,y=80,xf=false,yf=true},
- {s="top",x=8,y=80,xf=false,yf=false}}
+	local bs = {{s="mid",x=72,y=88,xf=false,yf=false},
+ {s="top l",x=96,y=80,xf=false,yf=false},
+ {s="left", x=96,y=88,xf=false,yf=false},
+ {s="right",x=96,y=88,xf=true,yf=false},
+ {s="top r",x=96,y=80,xf=true,yf=false},
+ {s="bottom l",x=96,y=80,xf=false,yf=true},
+ {s="bottom r",x=96,y=80,xf=true,yf=true},
+ {s="bottom",x=104,y=80,xf=false,yf=true},
+ {s="top",x=104,y=80,xf=false,yf=false}}
  
  sspr(bs[i].x,bs[i].y,8,8,box_w,box_h,8,8,bs[i].xf,bs[i].yf)
 end
@@ -301,18 +301,18 @@ function menu_box(arr)
 end
 
 function print_arrow(x,y,i)
-	local ad = {{d="up",x=64,y=80,posx=x,posy=y,xf=false,yf=true,s=16},
-	{d="down",x=64,y=80,posx=x,posy=y,xf=false,xy=false,s=16},
-	{d="left",x=32,y=80,posx=x,posy=y,xf=true,xy=false,s=16},
-	{d="right",x=32,y=80,posx=x,posy=y,xf=false,xy=false,s=16},
-	{d="up_left",x=48,y=80,posx=x,posy=y,xf=false,yf=false,s=16},
-	{d="up_right",x=48,y=80,posx=x,posy=y,xf=true,yf=false,s=16},
-	{d="down_left",x=48,y=80,posx=x,posy=y,xf=false,yf=true,s=16},
-	{d="down_right",x=48,y=80,posx=x,posy=y,xf=true,yf=true,s=16},
-	{d="up_end",x=40,y=72,posx=x+4,posy=y+8,xf=false,yf=true,s=8},
-	{d="down_end",x=40,y=72,posx=x+4,posy=y,xf=false,yf=false,s=8},
-	{d="left_end",x=32,y=72,posx=x+8,posy=y+4,xf=false,yf=false,s=8},
-	{d="right_end",x=32,y=72,posx=x,posy=y+4,xf=true,yf=false,s=8}}
+	local ad = {{d="up",x=112,y=16,posx=x,posy=y,xf=false,yf=true,s=16},
+	{d="down",x=112,y=16,posx=x,posy=y,xf=false,xy=false,s=16},
+	{d="left",x=96,y=0,posx=x,posy=y,xf=true,xy=false,s=16},
+	{d="right",x=96,y=0,posx=x,posy=y,xf=false,xy=false,s=16},
+	{d="up_left",x=112,y=0,posx=x,posy=y,xf=false,yf=false,s=16},
+	{d="up_right",x=112,y=0,posx=x,posy=y,xf=true,yf=false,s=16},
+	{d="down_left",x=112,y=0,posx=x,posy=y,xf=false,yf=true,s=16},
+	{d="down_right",x=112,y=0,posx=x,posy=y,xf=true,yf=true,s=16},
+	{d="up_end",x=88,y=88,posx=x+4,posy=y+8,xf=false,yf=true,s=8},
+	{d="down_end",x=88,y=88,posx=x+4,posy=y,xf=false,yf=false,s=8},
+	{d="left_end",x=80,y=88,posx=x+8,posy=y+4,xf=false,yf=false,s=8},
+	{d="right_end",x=80,y=88,posx=x,posy=y+4,xf=true,yf=false,s=8}}
 	
 	
 	sspr(ad[i].x,ad[i].y,ad[i].s,ad[i].s,ad[i].posx,ad[i].posy,ad[i].s,ad[i].s,ad[i].xf,ad[i].yf)
